@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+web/node_modules/
+
+# Build output
+web/dist/
+
+# Env / secrets
+.env
+web/.env
+*.local
+serviceAccount*.json
+*firebase-adminsdk*.json
+*cookies*.txt
+*.key
+*.pem
+ssh-key-*
+deploy/oracle/secrets/*
+!deploy/oracle/secrets/.gitkeep
+
+# Python
+__pycache__/
+*.pyc
+server/venv/
+server/.venv/
+
+# Firebase
+.firebase/
+firebase-debug.log
+firestore-debug.log
+
+# OS
+.DS_Store
+Thumbs.db

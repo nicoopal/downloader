@@ -1,0 +1,36 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function email() {
+      return request.auth.token.email;
+    }
+
+    // Un usuario es admin si tiene un doc en allowed_users con isAdmin == true
+    function isAdmin() {
+      return isSignedIn()
+        && exists(/databases/$(database)/documents/allowed_users/$(email()))
+        && get(/databases/$(database)/documents/allowed_users/$(email())).data.isAdmin == true;
+    }
+
+    // Lista de usuarios habilitados. La gestiona el admin desde el panel.
+    match /allowed_users/{userEmail} {
+      // Cada usuario puede leer su propio doc (para saber si tiene acceso).
+      // El admin puede leer todos.
+      allow read: if isSignedIn() && (email() == userEmail || isAdmin());
+      // Solo el admin agrega/quita usuarios.
+      allow write: if isAdmin();
+    }
+
+    // Historial de descargas: solo lo escribe el backend (Admin SDK).
+    match /downloads/{docId} {
+      allow read: if isSignedIn() && (resource.data.userEmail == email() || isAdmin());
+      allow write: if false;
+    }
+  }
+}

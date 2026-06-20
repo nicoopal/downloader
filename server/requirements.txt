@@ -1,0 +1,5 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+firebase-admin==6.6.0
+# yt-dlp se instala aparte (nightly) en el Dockerfile para tener
+# siempre los extractores más nuevos (se rompen/arreglan muy seguido).

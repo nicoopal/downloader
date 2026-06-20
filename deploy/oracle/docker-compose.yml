@@ -1,0 +1,35 @@
+services:
+  api:
+    build: ../../server
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - GOOGLE_APPLICATION_CREDENTIALS=/secrets/sa.json
+      - ALLOWED_ORIGINS=https://pals-downloader.web.app,https://pals-downloader.firebaseapp.com
+      - MAX_FILESIZE_MB=${MAX_FILESIZE_MB:-0}
+    volumes:
+      - ./secrets/sa.json:/secrets/sa.json:ro
+      # Cookies para YouTube (sortea el "confirm you're not a bot"):
+      - ./secrets/cookies.txt:/secrets/cookies.txt:ro
+
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+
+volumes:
+  caddy_data:
+  caddy_config:
