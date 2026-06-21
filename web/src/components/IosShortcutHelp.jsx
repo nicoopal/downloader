@@ -47,11 +47,12 @@ export default function IosShortcutHelp() {
               <b> Atajo de Apple</b> (una sola vez) y listo:
             </p>
 
-            <a className="btn-gel sm shortcut-dl" href={SHORTCUT_URL}>
+            <a className="btn-gel sm shortcut-dl" href={SHORTCUT_URL} download="Pal's Downloader.shortcut">
               <span>⬇️ Descargar el atajo</span>
             </a>
             <p className="modal-note">
-              Se abre en la app <b>Atajos</b> → tocá <b>Agregar atajo</b>. Después, en
+              Se guarda en <b>Archivos</b> (carpeta Descargas) → tocá el archivo
+              <b> Pal&apos;s Downloader.shortcut</b> ahí para importarlo en la app Atajos. Después, en
               YouTube/Instagram/etc. hacés <b>Compartir → Bajar con Pal&apos;s</b> y se abre la web con
               el link cargado. (Abre en Safari; la primera vez quizá tengas que loguearte ahí.)
             </p>
