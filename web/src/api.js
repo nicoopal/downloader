@@ -1,6 +1,12 @@
 import { auth } from "./firebase";
 
-const API_BASE = import.meta.env.VITE_API_BASE;
+// Backend principal (Oracle): TikTok, Twitter, Instagram, etc.
+const ORACLE_BASE = import.meta.env.VITE_API_BASE;
+
+// Detecta si un link es de YouTube (esos van al backend de la PC del usuario).
+export function isYouTubeUrl(url) {
+  return /(?:youtube\.com|youtu\.be|youtube-nocookie\.com)/i.test(url || "");
+}
 
 async function authHeader() {
   const user = auth.currentUser;
@@ -9,8 +15,8 @@ async function authHeader() {
   return { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
 }
 
-export async function fetchInfo(url) {
-  const res = await fetch(`${API_BASE}/api/info`, {
+export async function fetchInfo(url, base = ORACLE_BASE) {
+  const res = await fetch(`${base}/api/info`, {
     method: "POST",
     headers: await authHeader(),
     body: JSON.stringify({ url }),
@@ -23,8 +29,8 @@ export async function fetchInfo(url) {
 }
 
 // Descarga el archivo y dispara el guardado en el navegador.
-export async function downloadFile(url, mode, quality, onProgress) {
-  const res = await fetch(`${API_BASE}/api/download`, {
+export async function downloadFile(url, mode, quality, base = ORACLE_BASE) {
+  const res = await fetch(`${base}/api/download`, {
     method: "POST",
     headers: await authHeader(),
     body: JSON.stringify({ url, mode, quality }),

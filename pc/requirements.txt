@@ -1,0 +1,4 @@
+fastapi==0.115.6
+uvicorn==0.34.0
+firebase-admin==6.6.0
+# yt-dlp se instala aparte (nightly) en setup.bat.

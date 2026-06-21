@@ -30,29 +30,37 @@ export default function History({ user, isAdmin }) {
     })();
   }, [user, isAdmin]);
 
-  if (loading) return <div className="panel">Cargando historial…</div>;
-  if (error) return <div className="panel">⚠️ {error}</div>;
+  if (loading) return <section className="panel"><p className="muted">Cargando historial…</p></section>;
+  if (error) return <section className="panel"><p className="status err">⚠️ {error}</p></section>;
 
   return (
-    <div className="panel">
-      <h2>Historial {isAdmin && "(todos)"}</h2>
-      {items.length === 0 && <p className="muted">Todavía no hay descargas.</p>}
-      <ul className="list">
+    <section className="panel">
+      <div className="hist-head">
+        <h1 className="page-title">Historial {isAdmin && <span className="muted-tag">· todos</span>}</h1>
+        <span className="muted" style={{ fontSize: 13, fontWeight: 600 }}>{items.length} descargas</span>
+      </div>
+
+      {items.length === 0 && <p className="muted" style={{ marginTop: 20 }}>Todavía no hay descargas.</p>}
+
+      <ul className="hist-list">
         {items.map((it) => (
-          <li key={it.id}>
-            <div>
-              <a href={it.url} target="_blank" rel="noreferrer">
+          <li className="hist-item" key={it.id}>
+            <div className={`hist-ic ${it.mode === "audio" ? "audio" : "video"}`}>
+              {it.mode === "audio" ? "🎵" : "🎬"}
+            </div>
+            <div className="hist-main">
+              <a className="hist-title" href={it.url} target="_blank" rel="noreferrer">
                 {it.title || it.url}
               </a>
-              <span className="badge">{it.mode === "audio" ? "🎵" : "🎬"}</span>
+              <div className="hist-sub">
+                {isAdmin && it.userEmail ? `${it.userEmail} · ` : ""}
+                {it.createdAt?.toDate?.().toLocaleString?.() || ""}
+              </div>
             </div>
-            <span className="muted small">
-              {isAdmin && `${it.userEmail} · `}
-              {it.createdAt?.toDate?.().toLocaleString?.() || ""}
-            </span>
+            <span className="hist-tag">{it.mode === "audio" ? "MP3" : "MP4"}</span>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }

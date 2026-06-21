@@ -18,6 +18,12 @@ ssh-key-*
 deploy/oracle/secrets/*
 !deploy/oracle/secrets/.gitkeep
 
+# PC backend de YouTube: venv, binarios y secretos no se versionan
+pc/venv/
+pc/bin/
+pc/secrets/*
+!pc/secrets/.gitkeep
+
 # Python
 __pycache__/
 *.pyc

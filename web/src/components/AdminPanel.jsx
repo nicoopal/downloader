@@ -14,6 +14,7 @@ export default function AdminPanel({ user }) {
   const [email, setEmail] = useState("");
   const [makeAdmin, setMakeAdmin] = useState(false);
   const [status, setStatus] = useState("");
+  const [statusKind, setStatusKind] = useState(""); // "", "ok", "err"
 
   const load = async () => {
     const snap = await getDocs(collection(db, "allowed_users"));
@@ -28,6 +29,7 @@ export default function AdminPanel({ user }) {
     const e = email.trim().toLowerCase();
     if (!e || !e.includes("@")) {
       setStatus("⚠️ Email inválido");
+      setStatusKind("err");
       return;
     }
     try {
@@ -40,15 +42,18 @@ export default function AdminPanel({ user }) {
       setEmail("");
       setMakeAdmin(false);
       setStatus(`✅ ${e} habilitado`);
+      setStatusKind("ok");
       load();
     } catch (err) {
       setStatus(`⚠️ ${err.message}`);
+      setStatusKind("err");
     }
   };
 
   const remove = async (id) => {
     if (id === (user.email || "").toLowerCase()) {
       setStatus("⚠️ No podés quitarte a vos mismo");
+      setStatusKind("err");
       return;
     }
     if (!confirm(`¿Quitar acceso a ${id}?`)) return;
@@ -57,40 +62,38 @@ export default function AdminPanel({ user }) {
   };
 
   return (
-    <div className="panel">
-      <h2>Usuarios habilitados</h2>
+    <section className="panel">
+      <h1 className="page-title">Pals habilitados</h1>
+      <p className="muted" style={{ marginTop: 11, fontWeight: 500 }}>Quién puede entrar y descargar.</p>
 
-      <div className="row wrap">
+      <div className="admin-form">
         <input
-          className="input"
           placeholder="email@ejemplo.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && add()}
         />
-        <label className="chip">
-          <input type="checkbox" checked={makeAdmin} onChange={(e) => setMakeAdmin(e.target.checked)} />
+        <button className={`chk${makeAdmin ? " on" : ""}`} onClick={() => setMakeAdmin((v) => !v)} type="button">
+          <span className="box">{makeAdmin ? "✓" : ""}</span>
           Admin
-        </label>
-        <button className="btn primary" onClick={add}>
-          Agregar
+        </button>
+        <button className="btn-gel sm" onClick={add}>
+          <span>Agregar</span>
         </button>
       </div>
 
-      {status && <p className="status">{status}</p>}
+      {status && <p className={`status ${statusKind}`} style={{ margin: "11px 2px 0" }}>{status}</p>}
 
-      <ul className="list">
+      <ul className="user-list">
         {users.map((u) => (
-          <li key={u.id}>
-            <div>
-              {u.email} {u.isAdmin && <span className="badge">admin</span>}
-            </div>
-            <button className="btn small danger" onClick={() => remove(u.id)}>
-              Quitar
-            </button>
+          <li className="user-item" key={u.id}>
+            <div className="uavatar">{(u.email || "?").slice(0, 1).toUpperCase()}</div>
+            <span className="uemail">{u.email}</span>
+            {u.isAdmin && <span className="admin-badge">ADMIN</span>}
+            <button className="btn-danger btn-sm" onClick={() => remove(u.id)}>Quitar</button>
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
