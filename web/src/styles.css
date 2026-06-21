@@ -108,6 +108,10 @@ a { color: inherit; }
 .copy-row code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 12.5px; color: var(--ink); }
 .modal-note { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: var(--muted); }
 .modal-close { width: 100%; }
+.shortcut-dl { display: flex; width: 100%; justify-content: center; text-decoration: none; margin-bottom: 12px; }
+.modal .manual { margin: 4px 0 18px; border-top: 1px solid var(--glass-line); padding-top: 12px; }
+.modal .manual summary { cursor: pointer; font-weight: 700; font-size: 13.5px; color: var(--ink-soft); }
+.modal .manual summary:hover { color: var(--ink); }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 
 .btn-gel {
