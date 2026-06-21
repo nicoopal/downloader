@@ -9,8 +9,10 @@ function isIOS() {
   );
 }
 
-// Atajo de Apple ya armado y firmado (se importa sin "Atajos no confiables").
-const SHORTCUT_URL = "/pals-downloader.shortcut";
+// Atajo de Apple ya armado, vía link de iCloud: al abrirlo en iPhone se abre la
+// app Atajos directo con "Agregar atajo" (los .shortcut auto-hosteados no se
+// importan en iOS, se ven como texto).
+const SHORTCUT_URL = "https://www.icloud.com/shortcuts/8ccc305ecb2648e3bc9ed5ada8e090ee";
 const SHARE_BASE = "https://pals-downloader.web.app/share?url=";
 
 // En iOS no existe Web Share Target: la forma de "compartir → abrir la app" es
@@ -47,12 +49,11 @@ export default function IosShortcutHelp() {
               <b> Atajo de Apple</b> (una sola vez) y listo:
             </p>
 
-            <a className="btn-gel sm shortcut-dl" href={SHORTCUT_URL} download="Pal's Downloader.shortcut">
-              <span>⬇️ Descargar el atajo</span>
+            <a className="btn-gel sm shortcut-dl" href={SHORTCUT_URL} target="_blank" rel="noopener">
+              <span>⬇️ Obtener el atajo</span>
             </a>
             <p className="modal-note">
-              Se guarda en <b>Archivos</b> (carpeta Descargas) → tocá el archivo
-              <b> Pal&apos;s Downloader.shortcut</b> ahí para importarlo en la app Atajos. Después, en
+              Se abre en la app <b>Atajos</b> → tocá <b>Agregar atajo</b>. Después, en
               YouTube/Instagram/etc. hacés <b>Compartir → Bajar con Pal&apos;s</b> y se abre la web con
               el link cargado. (Abre en Safari; la primera vez quizá tengas que loguearte ahí.)
             </p>
