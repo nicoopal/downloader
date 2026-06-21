@@ -6,6 +6,7 @@ import Downloader from "./components/Downloader.jsx";
 import History from "./components/History.jsx";
 import AdminPanel from "./components/AdminPanel.jsx";
 import InstallButton from "./components/InstallButton.jsx";
+import IosShortcutHelp from "./components/IosShortcutHelp.jsx";
 
 // Burbujas / destellos decorativos del fondo Frutiger Aero
 const BUBBLES = [
@@ -108,6 +109,7 @@ export default function App() {
             </button>
             <p className="login-note">Solo cuentas habilitadas por un admin</p>
             <InstallButton />
+            <IosShortcutHelp />
           </div>
         </div>
       </>
@@ -158,6 +160,7 @@ export default function App() {
 
           <div className="topbar-right">
             <InstallButton />
+            <IosShortcutHelp />
             <div className="userchip">
               <div className="avatar">{(user.email || "?").slice(0, 1).toUpperCase()}</div>
               <span className="email">{user.email}</span>

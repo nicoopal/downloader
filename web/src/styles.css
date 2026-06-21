@@ -88,6 +88,28 @@ a { color: inherit; }
 .install-btn:hover { background: rgba(76,185,30,.2); }
 .login-card .install-btn { width: 100%; margin-top: 14px; }
 
+.ios-btn { border-color: rgba(11,94,138,.4); color: #0b5e8a; background: rgba(23,182,234,.14); font-weight: 700; }
+.ios-btn:hover { background: rgba(23,182,234,.24); }
+.login-card .ios-btn { width: 100%; margin-top: 10px; }
+
+/* ---------- Modal (instructivo iOS) ---------- */
+.modal-back { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 18px;
+  background: rgba(11,40,60,.45); -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px); animation: fade .2s ease both; }
+.modal { width: 100%; max-width: 470px; max-height: 88vh; overflow: auto; text-align: left; padding: 26px 24px 22px; border-radius: 22px;
+  box-shadow: 0 24px 70px rgba(11,94,138,.32), inset 0 1px 0 rgba(255,255,255,.9); animation: pop .35s cubic-bezier(.2,.7,.2,1) both; }
+.modal h2 { margin: 0 0 6px; font: 700 22px "Quicksand", sans-serif; color: var(--ink); }
+.modal-lede { margin: 0 0 14px; color: var(--ink-soft); font-size: 14.5px; line-height: 1.5; }
+.modal .steps { margin: 0 0 16px; padding-left: 20px; color: var(--ink-soft); font-size: 14px; line-height: 1.6; }
+.modal .steps li { margin-bottom: 7px; }
+.modal .steps ol { margin: 6px 0 2px; padding-left: 18px; }
+.modal b { color: var(--ink); font-weight: 700; }
+.copy-row { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 12px;
+  background: rgba(255,255,255,.55); border: 1px solid var(--glass-line); margin-bottom: 14px; }
+.copy-row code { flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap; font-size: 12.5px; color: var(--ink); }
+.modal-note { margin: 0 0 18px; font-size: 13px; line-height: 1.5; color: var(--muted); }
+.modal-close { width: 100%; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
 .btn-gel {
   position: relative; overflow: hidden; border-radius: 14px; padding: 13px 26px;
   border: 1px solid var(--gel-edge); background: var(--gel); color: #fff;
