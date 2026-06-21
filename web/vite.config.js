@@ -35,6 +35,9 @@ export default defineConfig({
       },
       workbox: {
         navigateFallback: "/index.html",
+        // No interceptar la descarga del atajo: sin esto el SW devuelve
+        // index.html en vez del archivo .shortcut y "no pasa nada".
+        navigateFallbackDenylist: [/\.shortcut$/i],
         globPatterns: ["**/*.{js,css,html,png,svg,woff2}"],
       },
     }),

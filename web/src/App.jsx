@@ -109,7 +109,6 @@ export default function App() {
             </button>
             <p className="login-note">Solo cuentas habilitadas por un admin</p>
             <InstallButton />
-            <IosShortcutHelp />
           </div>
         </div>
       </>
@@ -160,7 +159,6 @@ export default function App() {
 
           <div className="topbar-right">
             <InstallButton />
-            <IosShortcutHelp />
             <div className="userchip">
               <div className="avatar">{(user.email || "?").slice(0, 1).toUpperCase()}</div>
               <span className="email">{user.email}</span>
@@ -174,6 +172,10 @@ export default function App() {
           {tab === "history" && <History user={user} isAdmin={access.isAdmin} />}
           {tab === "admin" && access.isAdmin && <AdminPanel user={user} />}
         </main>
+
+        <footer className="appfoot">
+          <IosShortcutHelp />
+        </footer>
       </div>
     </>
   );

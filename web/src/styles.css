@@ -90,7 +90,9 @@ a { color: inherit; }
 
 .ios-btn { border-color: rgba(11,94,138,.4); color: #0b5e8a; background: rgba(23,182,234,.14); font-weight: 700; }
 .ios-btn:hover { background: rgba(23,182,234,.24); }
-.login-card .ios-btn { width: 100%; margin-top: 10px; }
+
+.appfoot { margin-top: auto; display: flex; justify-content: center; padding: 26px 18px calc(26px + env(safe-area-inset-bottom)); }
+.appfoot:empty { display: none; }
 
 /* ---------- Modal (instructivo iOS) ---------- */
 .modal-back { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 18px;
