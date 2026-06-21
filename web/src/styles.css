@@ -84,6 +84,10 @@ a { color: inherit; }
 .btn-danger:hover { background: rgba(255,236,236,.85); }
 .btn:disabled, .btn-gel:disabled { opacity: .55; cursor: default; }
 
+.install-btn { border-color: rgba(76,185,30,.5); color: #2f7d14; background: rgba(76,185,30,.12); font-weight: 700; }
+.install-btn:hover { background: rgba(76,185,30,.2); }
+.login-card .install-btn { width: 100%; margin-top: 14px; }
+
 .btn-gel {
   position: relative; overflow: hidden; border-radius: 14px; padding: 13px 26px;
   border: 1px solid var(--gel-edge); background: var(--gel); color: #fff;
