@@ -42,6 +42,8 @@ export default function Downloader() {
   const [statusKind, setStatusKind] = useState(""); // "", "ok", "err"
   const [busy, setBusy] = useState(false);
   const [pc, setPc] = useState({ online: false, url: null });
+  const [pcLoaded, setPcLoaded] = useState(false);
+  const [pendingShared, setPendingShared] = useState(null);
 
   // Estado de la PC de YouTube (heartbeat en Firestore → indicador ON/OFF).
   useEffect(() => {
@@ -51,10 +53,38 @@ export default function Downloader() {
         const d = snap.data();
         const fresh = d?.updatedAt?.toMillis ? Date.now() - d.updatedAt.toMillis() < 120000 : false;
         setPc({ online: !!(d?.online && fresh), url: d?.url || null });
+        setPcLoaded(true);
       },
-      () => setPc({ online: false, url: null })
+      () => {
+        setPc({ online: false, url: null });
+        setPcLoaded(true);
+      }
     );
   }, []);
+
+  // Web Share Target: al compartir un link a la PWA, Android abre /share?url=&text=&title=.
+  // Extraemos el link, limpiamos la barra de direcciones y marcamos para auto-buscar.
+  useEffect(() => {
+    const p = new URLSearchParams(window.location.search);
+    const raw = p.get("url") || p.get("text") || p.get("title") || "";
+    const m = raw.match(/https?:\/\/[^\s]+/);
+    const shared = (m ? m[0] : raw).trim();
+    if (shared) {
+      setUrl(shared);
+      setPendingShared(shared);
+      window.history.replaceState({}, "", "/");
+    }
+  }, []);
+
+  // Dispara la búsqueda automática del link compartido. Si es YouTube esperamos
+  // a saber si la PC está online (pcLoaded) para no mostrar "OFF" por error.
+  useEffect(() => {
+    if (!pendingShared) return;
+    if (isYouTubeUrl(pendingShared) && !pcLoaded) return;
+    setPendingShared(null);
+    onInfo();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingShared, pcLoaded]);
 
   const onInfo = async () => {
     const u = url.trim();
