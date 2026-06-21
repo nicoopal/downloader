@@ -49,13 +49,15 @@ export default function IosShortcutHelp() {
               <b> Atajo de Apple</b> (una sola vez) y listo:
             </p>
 
-            <a className="btn-gel sm shortcut-dl" href={SHORTCUT_URL} target="_blank" rel="noopener">
+            <a className="btn-gel sm shortcut-dl" href={SHORTCUT_URL}>
               <span>⬇️ Obtener el atajo</span>
             </a>
             <p className="modal-note">
-              Se abre en la app <b>Atajos</b> → tocá <b>Agregar atajo</b>. Después, en
-              YouTube/Instagram/etc. hacés <b>Compartir → Bajar con Pal&apos;s</b> y se abre la web con
-              el link cargado. (Abre en Safari; la primera vez quizá tengas que loguearte ahí.)
+              Se abre la página de Apple del atajo en <b>Safari</b> → bajá y tocá
+              <b> «Obtener atajo»</b> para agregarlo a la app Atajos. (Si no se abre, copiá este link
+              y pegalo en Safari: <br /><code className="mono">{SHORTCUT_URL}</code>)<br /><br />
+              Después, en YouTube/Instagram/etc. hacés <b>Compartir → Bajar con Pal&apos;s</b> y se abre
+              la web con el link cargado.
             </p>
 
             <details className="manual">
