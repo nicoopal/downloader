@@ -7,6 +7,10 @@ Hace 3 cosas:
   3. Publica un "latido" en Firestore (config/pc_backend) con la URL del tunel,
      para que la web sepa que la PC esta prendida (indicador YouTube ON/OFF).
 
+Watchdog: si se cae internet y vuelve, el tunel queda muerto (o cloudflared
+reconecta con OTRA URL). Cada 30s chequeamos la salud del tunel publico y, si
+no responde, lo reconstruimos solo con una URL nueva y re-publicamos el estado.
+
 Se corta con Ctrl+C (o al cerrar la ventana): marca la PC como offline.
 """
 
@@ -17,6 +21,7 @@ import time
 import signal
 import threading
 import subprocess
+import urllib.request
 
 # La consola de Windows suele ser cp1252; forzamos UTF-8 para no romper.
 try:
@@ -39,7 +44,13 @@ from firebase_admin import firestore
 CLOUDFLARED = os.path.join(BIN, "cloudflared.exe")
 URL_RE = re.compile(r"https://[-a-z0-9]+\.trycloudflare\.com")
 
+# Cada cuanto chequear la salud del tunel y cuantas fallas seguidas toleramos
+# antes de reconstruirlo.
+HEALTH_EVERY = 30      # segundos
+HEALTH_FAILS = 3       # fallas seguidas -> reconstruir
+
 tunnel_url = None
+tunnel_proc = None
 _stop = threading.Event()
 
 
@@ -52,7 +63,7 @@ def start_server():
     )
 
 
-def start_tunnel():
+def _spawn_tunnel():
     return subprocess.Popen(
         [CLOUDFLARED, "tunnel", "--url", f"http://127.0.0.1:{PORT}", "--no-autoupdate"],
         stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -61,6 +72,7 @@ def start_tunnel():
 
 
 def drain_tunnel_output(proc):
+    """Lee la salida de cloudflared y captura la URL publica (una sola vez)."""
     global tunnel_url
     for line in proc.stdout:
         if tunnel_url is None:
@@ -72,18 +84,62 @@ def drain_tunnel_output(proc):
             break
 
 
+def launch_tunnel():
+    """Arranca cloudflared y espera (hasta ~30s) a que aparezca la URL."""
+    global tunnel_url, tunnel_proc
+    tunnel_url = None
+    tunnel_proc = _spawn_tunnel()
+    threading.Thread(target=drain_tunnel_output, args=(tunnel_proc,), daemon=True).start()
+    for _ in range(60):
+        if tunnel_url or _stop.is_set():
+            break
+        time.sleep(0.5)
+    return tunnel_proc
+
+
+def tunnel_alive():
+    """True si el tunel publico responde el health check."""
+    if not tunnel_url:
+        return False
+    try:
+        with urllib.request.urlopen(tunnel_url, timeout=8) as r:
+            return r.status == 200
+    except Exception:
+        return False
+
+
+def publish_status(db, online):
+    try:
+        doc = {"online": online, "updatedAt": firestore.SERVER_TIMESTAMP}
+        if online and tunnel_url:
+            doc["url"] = tunnel_url
+        db.collection("config").document("pc_backend").set(doc, merge=True)
+    except Exception as e:  # noqa: BLE001
+        print(f"  [!] no se pudo publicar estado: {e}", flush=True)
+
+
+def restart_tunnel(db):
+    """Mata el tunel actual y levanta uno nuevo (URL nueva)."""
+    global tunnel_proc
+    print("\n  [!] Tunel caido. Reconstruyendo...", flush=True)
+    publish_status(db, False)
+    try:
+        if tunnel_proc:
+            tunnel_proc.terminate()
+    except Exception:  # noqa: BLE001
+        pass
+    launch_tunnel()
+    if tunnel_url:
+        print(f"  [OK] Tunel nuevo: {tunnel_url}\n", flush=True)
+        publish_status(db, True)
+    else:
+        print("  [!] Sin URL todavia (red caida?); reintento luego.\n", flush=True)
+
+
 def heartbeat_loop(db):
-    ref = db.collection("config").document("pc_backend")
     while not _stop.is_set():
         if tunnel_url:
-            try:
-                ref.set({
-                    "url": tunnel_url,
-                    "online": True,
-                    "updatedAt": firestore.SERVER_TIMESTAMP,
-                })
-            except Exception as e:  # noqa: BLE001
-                print(f"  [!] heartbeat fallo: {e}", flush=True)
+            publish_status(db, True)
         _stop.wait(45)
 
 
@@ -103,13 +159,7 @@ def main():
     server = start_server()
 
     print("  > Abriendo tunel HTTPS (cloudflared)...", flush=True)
-    tunnel = start_tunnel()
-    threading.Thread(target=drain_tunnel_output, args=(tunnel,), daemon=True).start()
-
-    for _ in range(60):
-        if tunnel_url:
-            break
-        time.sleep(0.5)
+    launch_tunnel()
     if not tunnel_url:
         print("  [!] No se obtuvo la URL del tunel todavia; sigo igual.", flush=True)
 
@@ -127,9 +177,10 @@ def main():
             )
         except Exception:  # noqa: BLE001
             pass
-        for p in (tunnel, server):
+        for p in (tunnel_proc, server):
             try:
-                p.terminate()
+                if p:
+                    p.terminate()
             except Exception:  # noqa: BLE001
                 pass
         sys.exit(0)
@@ -137,10 +188,33 @@ def main():
     signal.signal(signal.SIGINT, shutdown)
     signal.signal(signal.SIGTERM, shutdown)
 
+    fails = 0
+    last_check = time.time()
     while True:
+        # 1) El servidor local es critico: si muere, salimos (el .bat reinicia).
         if server.poll() is not None:
             print("  [!] El servidor se cerro. Saliendo.", flush=True)
             shutdown()
+
+        # 2) Si cloudflared murio del todo, reconstruimos ya.
+        if tunnel_proc is not None and tunnel_proc.poll() is not None:
+            restart_tunnel(db)
+            fails = 0
+            last_check = time.time()
+
+        # 3) Health check del tunel publico cada HEALTH_EVERY segundos.
+        now = time.time()
+        if tunnel_url and now - last_check >= HEALTH_EVERY:
+            last_check = now
+            if tunnel_alive():
+                fails = 0
+            else:
+                fails += 1
+                print(f"  [!] El tunel no responde ({fails}/{HEALTH_FAILS})", flush=True)
+                if fails >= HEALTH_FAILS:
+                    restart_tunnel(db)
+                    fails = 0
+
         time.sleep(2)
 
 
