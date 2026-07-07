@@ -39,7 +39,8 @@ ALLOWED_ORIGINS = [
     o.strip()
     for o in os.environ.get(
         "ALLOWED_ORIGINS",
-        "https://pals-downloader.web.app,https://pals-downloader.firebaseapp.com,http://localhost:5173",
+        "https://pals-downloader.web.app,https://pals-downloader.firebaseapp.com,"
+        "https://ieeworld.web.app,https://ieeworld.firebaseapp.com,http://localhost:5173",
     ).split(",")
     if o.strip()
 ]
